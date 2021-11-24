@@ -1,6 +1,5 @@
 package com.rm.junit.service;
 
-
 import entity.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -39,6 +38,8 @@ class UserServiceTest {
     void userEmptyIfNoUserAdded() {
         System.out.println("Test 1: " + this);
         List<User> users = userService.getAll();
+
+//        MatcherAssert.assertThat(users, IsEmptyCollection.empty());
         assertTrue(users.isEmpty());
     }
 
@@ -71,6 +72,7 @@ class UserServiceTest {
 
         Map<Integer, User> users = userService.getAllConvertedById();
 
+//        MatcherAssert.assertThat(users, IsMapContaining.hasKey(IVAN.getId()));
         assertAll(
                 () -> assertThat(users).containsKeys(IVAN.getId(), PETR.getId()),
                 () -> assertThat(users).containsValues(IVAN, PETR)
