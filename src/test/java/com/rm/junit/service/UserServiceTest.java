@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserServiceTest {
 
+    private static final User IVAN = User.of(1, "Ivan", "123");
+    private static final User PETR = User.of(2, "Petr", "456");
     private UserService userService;
 
     @BeforeAll
@@ -40,11 +43,36 @@ class UserServiceTest {
     @Test
     void userSizeIfUserAdded() {
         System.out.println("Test 2: " + this);
-        userService.add(new User());
-        userService.add(new User());
+        userService.add(IVAN);
+        userService.add(PETR);
 
         List<User> users = userService.getAll();
         assertEquals(2, users.size());
+    }
+
+    @Test
+    void loginSuccessIfUserExist() {
+        userService.add(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getUsername(), IVAN.getPassword());
+
+        assertTrue(maybeUser.isPresent());
+        maybeUser.ifPresent(user -> assertEquals(IVAN, user));
+    }
+
+    @Test
+    void loginFailIfPasswordIsNotCorrect() {
+        userService.add(IVAN);
+        Optional<User> maybeUser = userService.login(IVAN.getUsername(), "not correct");
+
+        assertTrue(maybeUser.isEmpty());
+    }
+
+    @Test
+    void loginFailIfUserDoesNotExist() {
+        userService.add(IVAN);
+        Optional<User> maybeUser = userService.login("not correct", "123");
+
+        assertTrue(maybeUser.isEmpty());
     }
 
     @AfterEach
