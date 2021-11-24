@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -93,6 +94,14 @@ class UserServiceTest {
         Optional<User> maybeUser = userService.login("not correct", "123");
 
         assertTrue(maybeUser.isEmpty());
+    }
+
+    @Test
+    void throwExceptionIfUsernameOrPasswordIsNull() {
+        assertAll(
+                () -> assertThrows(IllegalArgumentException.class, () -> userService.login(null, "not correct")),
+                () -> assertThrows(IllegalArgumentException.class, () -> userService.login("not correct", null))
+        );
     }
 
     @AfterEach
