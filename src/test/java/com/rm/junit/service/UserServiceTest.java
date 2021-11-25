@@ -6,10 +6,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
@@ -21,6 +23,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import service.UserService;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +32,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -110,6 +114,7 @@ class UserServiceTest {
         }
 
         @Test
+        @Disabled("flaky, need to see")
         void loginFailIfPasswordIsNotCorrect() {
             userService.add(IVAN);
             Optional<User> maybeUser = userService.login(IVAN.getUsername(), "not correct");
@@ -117,12 +122,22 @@ class UserServiceTest {
             assertTrue(maybeUser.isEmpty());
         }
 
-        @Test
+        @RepeatedTest(value = 5, name = RepeatedTest.LONG_DISPLAY_NAME)
         void loginFailIfUserDoesNotExist() {
             userService.add(IVAN);
             Optional<User> maybeUser = userService.login("not correct", "123");
 
             assertTrue(maybeUser.isEmpty());
+        }
+
+        @Test
+        void checkLoginFunctionalityPerformance() {
+            System.out.println(Thread.currentThread().getName());
+            assertTimeout(Duration.ofMillis(200L), () -> {
+                System.out.println(Thread.currentThread().getName());
+                Thread.sleep(300);
+                return userService.login(IVAN.getUsername(), IVAN.getPassword());
+            });
         }
 
         @Test
