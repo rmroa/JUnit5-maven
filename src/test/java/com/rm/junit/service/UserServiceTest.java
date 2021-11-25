@@ -16,11 +16,15 @@ import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import service.UserService;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -128,6 +132,38 @@ class UserServiceTest {
                     () -> assertThrows(IllegalArgumentException.class, () -> userService.login("not correct", null))
             );
         }
+
+        @ParameterizedTest(name = "{arguments} test")
+//        @ArgumentsSource() // функциональность, которая подставит нам аргументы с помощью DI, его задача предоставить поток аргументов в наш метод
+//        @NullSource // реализовывает NullArgumentProvider. используется с одним параметром
+//        @EmptySource // реализовывает EmptyArgumentProvider. используется с одним параметром
+//        @ValueSource(strings = { // используется с одним параметром
+//                "Ivan", "Petr"
+//        })
+//        @EnumSource // используется при входных данных (Enum)
+        @MethodSource("com.rm.junit.service.UserServiceTest#getArgumentsForLoginTest")
+//        @CsvFileSource(resources = "/login-test-data.csv", delimiter = ',', numLinesToSkip = 1) // numLinesToSkip - пропустить кол- во строк затраченных на заголовок
+//        @CsvSource({
+//                "Ivan,123",
+//                "Petr,456   ",
+//        })
+        @DisplayName("login param test") // переопределить название
+            // пароль в аргументах можно представить в виду Integer, тк легко конвертится в String
+        void loginParameterizedTest(String username, String password, Optional<User> user) { // просим JUnit предоставить нам параметры
+            userService.add(IVAN, PETR);
+
+            Optional<User> oneUser = userService.login(username, password);
+            assertThat(oneUser).isEqualTo(user);
+        }
+    }
+
+    static Stream<Arguments> getArgumentsForLoginTest() {
+        return Stream.of(
+                Arguments.of("Ivan", "123", Optional.of(IVAN)),
+                Arguments.of("Petr", "456", Optional.of(PETR)),
+                Arguments.of("Petr", "not correct", Optional.empty()),
+                Arguments.of("not correct", "123", Optional.empty())
+        );
     }
 
     @AfterEach
