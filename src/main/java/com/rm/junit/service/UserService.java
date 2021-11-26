@@ -1,6 +1,7 @@
-package service;
+package com.rm.junit.service;
 
-import entity.User;
+import com.rm.junit.dao.UserDao;
+import com.rm.junit.entity.User;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +14,16 @@ import static java.util.stream.Collectors.toMap;
 
 public class UserService {
 
+    private final UserDao userDao;
     private final List<User> users = new ArrayList<>();
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public boolean delete(Integer userId) {
+        return userDao.delete(userId);
+    }
 
     public List<User> getAll() {
         return users;

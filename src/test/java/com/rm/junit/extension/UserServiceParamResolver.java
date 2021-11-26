@@ -1,10 +1,11 @@
 package com.rm.junit.extension;
 
+import com.rm.junit.dao.UserDao;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
-import service.UserService;
+import com.rm.junit.service.UserService;
 
 public class UserServiceParamResolver implements ParameterResolver {
 
@@ -19,7 +20,7 @@ public class UserServiceParamResolver implements ParameterResolver {
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         ExtensionContext.Store store = extensionContext.getStore(ExtensionContext.Namespace.create(UserService.class)); // Namespace - ключ для store, Store - hashmap
-        return store.getOrComputeIfAbsent(UserService.class, it -> new UserService());
+        return store.getOrComputeIfAbsent(UserService.class, it -> new UserService(new UserDao()));
         // получаем по ключу значение (key - UserService.class) (value - запуск механизма который вернет UserService)
     }
 }

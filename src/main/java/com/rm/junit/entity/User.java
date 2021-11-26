@@ -1,4 +1,4 @@
-package entity;
+package com.rm.junit.entity;
 
 import lombok.Value;
 

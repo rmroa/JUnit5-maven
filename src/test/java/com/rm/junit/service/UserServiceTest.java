@@ -1,11 +1,12 @@
 package com.rm.junit.service;
 
+import com.rm.junit.dao.UserDao;
+import com.rm.junit.entity.User;
 import com.rm.junit.extension.ConditionalExtension;
 import com.rm.junit.extension.GlobalExtension;
 import com.rm.junit.extension.PostProcessingExtension;
 import com.rm.junit.extension.ThrowableExtension;
 import com.rm.junit.extension.UserServiceParamResolver;
-import entity.User;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import service.UserService;
+import org.mockito.Mockito;
 
 import java.time.Duration;
 import java.util.List;
@@ -47,12 +48,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
         GlobalExtension.class,
         PostProcessingExtension.class,
         ConditionalExtension.class,
-        ThrowableExtension.class
+//        ThrowableExtension.class
 })
 class UserServiceTest {
 
     private static final User IVAN = User.of(1, "Ivan", "123");
     private static final User PETR = User.of(2, "Petr", "456");
+
+    private UserDao userDao;
     private UserService userService;
 
     UserServiceTest(TestInfo testInfo) {
@@ -65,9 +68,27 @@ class UserServiceTest {
     }
 
     @BeforeEach
-    void prepare(UserService userService) {
+    void prepare() {
         System.out.println("Before each: " + this);
-        this.userService = userService;
+        this.userDao = Mockito.mock(UserDao.class);
+        this.userService = new UserService(userDao);
+    }
+
+    @Test
+    void shouldDeleteExistedUser() {
+        userService.add(IVAN);
+//        Mockito.doReturn(true).when(userDao).delete(IVAN.getId());
+//        Mockito.doReturn(true).when(userDao).delete(Mockito.any());
+
+        Mockito.when(userDao.delete(IVAN.getId()))
+                .thenReturn(true)
+                .thenReturn(false);
+
+        boolean deleteResult = userService.delete(IVAN.getId());
+        System.out.println(userService.delete(IVAN.getId()));
+        System.out.println(userService.delete(IVAN.getId()));
+
+        assertThat(deleteResult).isTrue();
     }
 
     @Test
@@ -170,12 +191,13 @@ class UserServiceTest {
 //                "Ivan,123",
 //                "Petr,456   ",
 //        })
-        @DisplayName("login param test") // переопределить название
+        @DisplayName("login param test")
+            // переопределить название
             // пароль в аргументах можно представить в виду Integer, тк легко конвертится в String
         void loginParameterizedTest(String username, String password, Optional<User> user) { // просим JUnit предоставить нам параметры
             userService.add(IVAN, PETR);
-
             Optional<User> oneUser = userService.login(username, password);
+
             assertThat(oneUser).isEqualTo(user);
         }
     }

@@ -23,7 +23,7 @@ public class TestLauncher {
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder
                 .request()
 //                .selectors(DiscoverySelectors.selectClass(UserServiceTest.class))
-                .selectors(DiscoverySelectors.selectPackage("com.rm.junit.service"))
+                .selectors(DiscoverySelectors.selectPackage("com.rm.junit.com.rm.junit.service"))
                 .filters(
                         TagFilter.includeTags("login")
                 )
