@@ -97,7 +97,6 @@ class UserServiceTest {
         assertThrows(RuntimeException.class, () -> userService.delete(IVAN.getId()));
     }
 
-
     @Test
     void shouldDeleteExistedUser() {
         userService.add(IVAN);
@@ -107,6 +106,9 @@ class UserServiceTest {
 //        Mockito.when(userDao.delete(IVAN.getId()))
 //                .thenReturn(true)
 //                .thenReturn(false);
+
+//        BDDMockito.given(userDao.delete(IVAN.getId())).willReturn(true);
+//        BDDMockito.willReturn(true).given(userDao.delete(IVAN.getId()));
 
         boolean deleteResult = userService.delete(IVAN.getId());
         System.out.println(userService.delete(IVAN.getId()));
